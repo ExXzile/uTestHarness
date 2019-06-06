@@ -201,7 +201,7 @@ class MainApp:
 
 def main():
     root = Tk()
-    root.title('Test Harness')
+    root.title('uTestHarness')
     root.geometry('+480+100')
     root.iconbitmap('Icons\\TH.ico')
     root.resizable(False, False)
