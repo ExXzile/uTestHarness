@@ -203,6 +203,7 @@ def main():
     root = Tk()
     root.title('Test Harness')
     root.geometry('+480+100')
+    root.iconbitmap('Icons\\TH.ico')
     root.resizable(False, False)
     root.lift()
     _main_app = MainApp(root)
