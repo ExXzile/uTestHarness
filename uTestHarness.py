@@ -149,6 +149,7 @@ class MainApp:
                             except AssertionError:
                                 # if a 'not a match' received
                                 # report mismatch, and check if it is not a 'type' mismatch
+                                # TODO: fix syntax fail - result will report as type(str)
                                 if type(result) != type(expect):
                                     rep_box.insert(
                                         END,
