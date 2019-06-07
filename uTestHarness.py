@@ -122,7 +122,6 @@ class MainApp:
                     # run user func(s)
                     for func in user_funcs_list:
                         results = []
-                        stat_results = []
                         rep_box.insert(END, f'\nFunction Test <{func.__name__}> :')
                         for test_num, (test, expect) in enumerate(zip(tests, expects), 1):
                             rep_box.insert(END, f'\n\n_________ Test n: {test_num}')
