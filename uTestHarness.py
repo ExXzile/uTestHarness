@@ -142,8 +142,8 @@ class MainApp:
                                 rep_box.insert(END, f'\n--------- !Func Error!: {func_error}')
                                 results.append(False)
 
-                            # if no errors and output received,
-                            # continue, compare and report
+                            # continue, compare and report..
+                            # except in case of func error, assertion will fail
                             try:
                                 assert result == expect
                             except AssertionError:
