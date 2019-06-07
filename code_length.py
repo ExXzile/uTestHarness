@@ -31,3 +31,4 @@ def code_line_count(func, user_funcs):
                 break
 
     return count
+
