@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import messagebox
 
 import sqlite3
-import math
 
 sq_con = sqlite3.connect("challenges.sqlite")
 sq_cur = sq_con.cursor()
@@ -42,6 +41,7 @@ class MainApp:
                 self.desc_box.insert(1.0, self.chall_data[2])
                 self.desc_box.configure(state='disabled')
 
+                # if accompanying image is provided, load in a Toplevel() window
                 if self.chall_data[3]:
                     self.desc_image = PhotoImage(data=self.chall_data[3])
                     self.desc_window = Toplevel(master)  # TODO: destroy Toplevel on repeat
@@ -83,10 +83,10 @@ class MainApp:
             command=paste
         )
         self.paste_bttn.grid(row=2, padx=24, pady=12, sticky='e')
-
         # -----------------------------------------------------------------------------------------
-        # Func(s) test
-        def start_test():  # TODO: split this mess into smaller funcs
+
+        # Func(s) test start ----------------------------------------------------------------------
+        def func_test():
             user_funcs = self.sub_box.get(1.0, END)
             if user_funcs.strip('\n') == '':
                 return
@@ -105,8 +105,9 @@ class MainApp:
                         'Error', 'Error:\nCorrupt Data or No Data loaded', icon='warning'
                     )
                 else:
-
-                    # rep sheet Toplevel ----------------------------------------------------------
+                    # if user func(s) and syntax is accepted
+                    # create report sheet Toplevel() window and continue
+                    # -----------------------------------------------------------------------------
                     rep_sheet = Toplevel(master)
                     rep_sheet.geometry('+200+200')
                     rep_box = Text(rep_sheet, width=100, height=36, font='Courier 9')
@@ -118,9 +119,10 @@ class MainApp:
                     rep_kill.pack(pady=6, padx=12, anchor='e')
                     # -----------------------------------------------------------------------------
 
-                    # run funcs
+                    # run user func(s)
                     for func in user_funcs_list:
                         results = []
+                        stat_results = []
                         rep_box.insert(END, f'\nFunction Test <{func.__name__}> :')
                         for test_num, (test, expect) in enumerate(zip(tests, expects), 1):
                             rep_box.insert(END, f'\n\n_________ Test n: {test_num}')
@@ -131,6 +133,7 @@ class MainApp:
                                     END, f'\n   input: {str(test)[:90]} <truncated>'
                                 )
 
+                            # attempt to get func output, report errors
                             try:
                                 result = func(test) \
                                     if type(test) == str or type(test) == int \
@@ -140,9 +143,13 @@ class MainApp:
                                 rep_box.insert(END, f'\n--------- !Func Error!: {func_error}')
                                 results.append(False)
 
+                            # if no errors and output received,
+                            # continue, compare and report
                             try:
                                 assert result == expect
                             except AssertionError:
+                                # if a 'not a match' received
+                                # report mismatch, and check if it is not a 'type' mismatch
                                 if type(result) != type(expect):
                                     rep_box.insert(
                                         END,
@@ -158,6 +165,7 @@ class MainApp:
                                 rep_box.insert(END, '\n---Failed!')
                                 results.append(False)
                             else:
+                                # if a 'match', report success
                                 rep_box.insert(
                                     END,
                                     f'\nexpected: {expect}'
@@ -166,53 +174,42 @@ class MainApp:
                                 rep_box.insert(END, '\n---Passed!')
                                 results.append(True)
 
-                        # --------------------------------------------------------------------------
-                        # if successful, test stats
-                        if all(results):  # TODO: add timers
+                        # all tests successful, report and launch required stats
+                        if all(results):
                             rep_box.insert(
                                 END, f'\n\nFunction: <{func.__name__}>\n--- All Tests Passed!'
                             )
 
-                            func_code_lines = []
-                            func_code_line = []
-                            for char in user_funcs:
-                                if char != '\n':
-                                    func_code_line.append(char)
+                            # if code length 'Merit' is specified,
+                            # test and grant 'Merit' if qualifies
+                            if self.chall_data[6]:
+                                import code_length
+                                length_merit = self.chall_data[6]
+                                func_length = code_length.code_line_count(func, user_funcs)
+
+                                rep_box.insert(
+                                    END,
+                                    f'\n'
+                                    f'\n      Code length: {func_length}'
+                                    f'\nCode length Merit: {length_merit}'
+                                    f'\n       Merit Pass: '
+                                )
+                                if func_length <= length_merit:
+                                    rep_box.insert(END, '✓')
                                 else:
-                                    func_code_lines.append(''.join(func_code_line))
-                                    func_code_line = []
+                                    rep_box.insert(END, 'No')
 
-                            count = 0
-                            break_count = False
-                            for line in func_code_lines:
-                                if line:
-                                    line = line.lstrip(' ')
-                                    if func.__name__ in line:
-                                        count = 0
-                                        break_count = True
-                                        continue
-                                    if line[0] == '#':
-                                        continue
-                                    if len(line) > 1:
-                                        line_count = math.ceil(len(line)/72)
-                                        count += line_count
-                                    if 'return' in line and break_count:
-                                        count -= 1
-                                        break
-
-                            rep_box.insert(END, f'\n--- Code Line Count: {count}')
-
+                        # if any of the tests failed
                         else:
                             rep_box.insert(
                                 END, f'\n\nFunction: <{func.__name__}>\n--- Test Failed!'
                             )
-                        rep_box.insert(END, '\n_________________________________________________')
-                        rep_box.insert(END, '\n\n')
+                        rep_box.insert(END, '\n_______________________________________________\n\n')
 
         # run tests button
         self.run = ttk.Button(
             master, text='Run Test', width=12, style='TButton',
-            command=start_test
+            command=func_test
         )
         self.run.grid(row=4, pady=12)
 
