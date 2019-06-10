@@ -49,7 +49,7 @@ class MainApp:
                     self.desc_image = PhotoImage(data=self.chall_data[3])
                     Label(self.desc_window, image=self.desc_image).pack()
             else:
-                messagebox.showwarning('Error', 'No Challenge Selected!', icon='warning')
+                messagebox.showwarning('Error', 'No Challenge Selected!', icon='warning' )
 
         self.load_btn = ttk.Button(
             self.logo_canvas, text="Load", width=8, style='TButton',
