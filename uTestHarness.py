@@ -31,11 +31,12 @@ class MainApp:
         self.ch_option = OptionMenu(self.logo_canvas, ch_var, *challenges)
         self.ch_option.grid(row=0, column=0, pady=42, padx=66, sticky='w')
 
-        # load challenge and func()
+        # load challenge
         def load_challenge():
-            sq_cur.execute(f'SELECT * FROM challenges WHERE name="{ch_var.get()}"')
-            self.chall_data = sq_cur.fetchone()
-            try:
+            if ch_var.get() != 'Select Challenge':
+                sq_cur.execute(f'SELECT * FROM challenges WHERE name="{ch_var.get()}"')
+                self.chall_data = sq_cur.fetchone()
+
                 self.desc_box.configure(state='normal')
                 self.desc_box.delete(1.0, END)
                 self.desc_box.insert(1.0, self.chall_data[2])
@@ -43,12 +44,12 @@ class MainApp:
 
                 # if accompanying image is provided, load in a Toplevel() window
                 if self.chall_data[3]:
-                    self.desc_image = PhotoImage(data=self.chall_data[3])
                     self.desc_window = Toplevel(master)  # TODO: destroy Toplevel on repeat
                     self.desc_window.geometry('+840+240')
+                    self.desc_image = PhotoImage(data=self.chall_data[3])
                     Label(self.desc_window, image=self.desc_image).pack()
-            except (TypeError, AttributeError):
-                pass
+            else:
+                messagebox.showwarning('Error', 'No Challenge Selected!', icon='warning')
 
         self.load_btn = ttk.Button(
             self.logo_canvas, text="Load", width=8, style='TButton',
@@ -149,8 +150,7 @@ class MainApp:
                             except AssertionError:
                                 # if a 'not a match' received
                                 # report mismatch, and check if it is not a 'type' mismatch
-                                # TODO: fix syntax fail - result will report as type(str)
-                                if type(result) != type(expect):
+                                if type(result) != type(expect) and result != '- NONE -':
                                     rep_box.insert(
                                         END,
                                         f'\nexpected: type <{type(expect).__name__}> - {expect}'
@@ -216,7 +216,7 @@ class MainApp:
 
 def main():
     root = Tk()
-    root.title('Test Harness')
+    root.title('uTestHarness')
     root.geometry('+480+100')
     root.iconbitmap('Icons\\TH.ico')
     root.resizable(False, False)
