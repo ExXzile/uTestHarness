@@ -15,7 +15,7 @@ def rep_line_count(line):
 
 
 '''
-- user submitted func lines count:
+- user submitted func lines count, returns merit report:
 
 - only lines between (def "your_function_name") and (return 'answer') will be counted
   however, it will still count towards the score if "return" line
@@ -33,7 +33,7 @@ def rep_line_count(line):
 '''
 
 
-def code_line_count(func, user_funcs):
+def code_line_count(func, user_funcs, merit):
     func_code_lines = []
     func_code_line = []
     for char in user_funcs:
@@ -61,4 +61,16 @@ def code_line_count(func, user_funcs):
                 count -= 1
                 break
 
-    return count
+    merit_report = (
+        f'\n'
+        f'\n      Code length: {count}'
+        f'\nCode length Merit: {merit}'
+        f'\n       Merit Pass: '
+    )
+
+    if count <= merit:
+        merit_report += '✓'
+    else:
+        merit_report += '✗'
+
+    return merit_report

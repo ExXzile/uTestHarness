@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import messagebox
 
 import sqlite3
-from code_length import rep_line_count
 
 sq_con = sqlite3.connect("challenges.sqlite")
 sq_cur = sq_con.cursor()
@@ -110,6 +109,7 @@ class MainApp:
                     # if user func(s) and syntax is accepted
                     # create report sheet Toplevel() window and continue
                     # -----------------------------------------------------------------------------
+                    # TODO: create a separate .py for Toplevel as class, and 'test func'; clean up
                     rep_sheet = Toplevel(master)
                     rep_sheet.geometry('+200+200')
                     rep_box = Text(rep_sheet, width=112, height=36, font='Courier 9')
@@ -119,9 +119,10 @@ class MainApp:
                         command=rep_sheet.destroy
                     )
                     rep_kill.pack(pady=6, padx=12, anchor='e')
-                    # -----------------------------------------------------------------------------
 
-                    # run user func(s)
+                    # run user func(s) test
+                    from code_length import rep_line_count
+
                     for func in user_funcs_list:
                         results = []
                         rep_box.insert(END, f'\nFunction Test <{func.__name__}> :')
@@ -140,7 +141,7 @@ class MainApp:
                                 results.append(False)
 
                             # continue, compare and report..
-                            # except in case of func error, assertion will fail
+                            # except in case of func error, assertion will fail by default
                             try:
                                 assert result == expect
                             except AssertionError:
@@ -158,52 +159,41 @@ class MainApp:
                                         f'\nexpected: {rep_line_count(expect)}'
                                         f'\nreceived: {rep_line_count(result)}'
                                     )
-                                rep_box.insert(END, '\n---Failed!')
+                                rep_box.insert(END, '\n---> Failed!')
                                 results.append(False)
                             else:
-                                # if a 'match', report success
+                                # if a 'match' received, report success
                                 rep_box.insert(
                                     END,
                                     f'\nexpected: {rep_line_count(expect)}'
                                     f'\nreceived: - ✓ -'
                                 )
-                                rep_box.insert(END, '\n---Passed!')
+                                rep_box.insert(END, '\n---> Passed!')
                                 results.append(True)
+
+                        # end result report for tested func
+                        rep_box.insert(
+                            END,
+                            f'\n'
+                            f'\nFunction: <{func.__name__}>'
+                        )
 
                         # all tests successful, report and launch required stats
                         if all(results):
-                            rep_box.insert(
-                                END,
-                                f'\n\nFunction: <{func.__name__}>'
-                                f'\n--- All Tests Passed!'
-                            )
+                            rep_box.insert(END, f'\n---> All Tests Passed!')
 
                             # if code length 'Merit' is specified,
-                            # test and grant 'Merit' if qualifies
+                            # test, grant 'Merit' if qualifies
                             if self.chall_data[6]:
                                 from code_length import code_line_count
-                                length_merit = self.chall_data[6]
-                                func_length = code_line_count(func, user_funcs)
-
-                                rep_box.insert(
-                                    END,
-                                    f'\n'
-                                    f'\n      Code length: {func_length}'
-                                    f'\nCode length Merit: {length_merit}'
-                                    f'\n       Merit Pass: '
-                                )
-                                if func_length <= length_merit:
-                                    rep_box.insert(END, '✓')
-                                else:
-                                    rep_box.insert(END, 'No')
+                                merit_report = code_line_count(func, user_funcs, self.chall_data[6])
+                                rep_box.insert(END, f'{merit_report}')
 
                         # if any of the tests failed
                         else:
-                            rep_box.insert(
-                                END,
-                                f'\n\nFunction: <{func.__name__}>'
-                                f'\n--- Test Failed!'
-                            )
+                            rep_box.insert(END, f'\n---> Overall Test Failed!')
+
+                        # end func report
                         rep_box.insert(
                             END,
                             '\n________________________________________________\n\n\n'
