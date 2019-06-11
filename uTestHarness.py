@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 
 import sqlite3
+from code_length import rep_line_count
 
 sq_con = sqlite3.connect("challenges.sqlite")
 sq_cur = sq_con.cursor()
@@ -111,7 +112,7 @@ class MainApp:
                     # -----------------------------------------------------------------------------
                     rep_sheet = Toplevel(master)
                     rep_sheet.geometry('+200+200')
-                    rep_box = Text(rep_sheet, width=100, height=36, font='Courier 9')
+                    rep_box = Text(rep_sheet, width=112, height=36, font='Courier 9')
                     rep_box.pack(padx=12, pady=(12, 0))
                     rep_kill = ttk.Button(
                         rep_sheet, text='Close', width=9, style='TButton',
@@ -126,12 +127,7 @@ class MainApp:
                         rep_box.insert(END, f'\nFunction Test <{func.__name__}> :')
                         for test_num, (test, expect) in enumerate(zip(tests, expects), 1):
                             rep_box.insert(END, f'\n\n_________ Test n: {test_num}')
-                            if len(str(test)) < 100:
-                                rep_box.insert(END, f'\n   input: {test}')
-                            else:
-                                rep_box.insert(
-                                    END, f'\n   input: {str(test)[:90]} <truncated>'
-                                )
+                            rep_box.insert(END, f'\n   input: {rep_line_count(test)}')
 
                             # attempt to get func output, report errors
                             try:
@@ -153,14 +149,14 @@ class MainApp:
                                 if type(result) != type(expect) and result != '- NONE -':
                                     rep_box.insert(
                                         END,
-                                        f'\nexpected: type <{type(expect).__name__}> - {expect}'
-                                        f'\nreceived: type <{type(result).__name__}> - {result}'
+                                        f'\nexpected: type <{type(expect).__name__}> - {rep_line_count(expect)}'
+                                        f'\nreceived: type <{type(result).__name__}> - {rep_line_count(result)}'
                                     )
                                 else:
                                     rep_box.insert(
                                         END,
-                                        f'\nexpected: {expect}'
-                                        f'\nreceived: {result}'
+                                        f'\nexpected: {rep_line_count(expect)}'
+                                        f'\nreceived: {rep_line_count(result)}'
                                     )
                                 rep_box.insert(END, '\n---Failed!')
                                 results.append(False)
@@ -168,7 +164,7 @@ class MainApp:
                                 # if a 'match', report success
                                 rep_box.insert(
                                     END,
-                                    f'\nexpected: {expect}'
+                                    f'\nexpected: {rep_line_count(expect)}'
                                     f'\nreceived: - ✓ -'
                                 )
                                 rep_box.insert(END, '\n---Passed!')
@@ -177,15 +173,17 @@ class MainApp:
                         # all tests successful, report and launch required stats
                         if all(results):
                             rep_box.insert(
-                                END, f'\n\nFunction: <{func.__name__}>\n--- All Tests Passed!'
+                                END,
+                                f'\n\nFunction: <{func.__name__}>'
+                                f'\n--- All Tests Passed!'
                             )
 
                             # if code length 'Merit' is specified,
                             # test and grant 'Merit' if qualifies
                             if self.chall_data[6]:
-                                import code_length
+                                from code_length import code_line_count
                                 length_merit = self.chall_data[6]
-                                func_length = code_length.code_line_count(func, user_funcs)
+                                func_length = code_line_count(func, user_funcs)
 
                                 rep_box.insert(
                                     END,
@@ -202,9 +200,14 @@ class MainApp:
                         # if any of the tests failed
                         else:
                             rep_box.insert(
-                                END, f'\n\nFunction: <{func.__name__}>\n--- Test Failed!'
+                                END,
+                                f'\n\nFunction: <{func.__name__}>'
+                                f'\n--- Test Failed!'
                             )
-                        rep_box.insert(END, '\n_______________________________________________\n\n')
+                        rep_box.insert(
+                            END,
+                            '\n________________________________________________\n\n\n'
+                        )
 
         # run tests button
         self.run = ttk.Button(

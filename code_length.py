@@ -2,6 +2,21 @@
 import math
 
 '''
+- small func to truncate long lines for reports:
+'''
+
+
+def rep_line_count(line):
+    line = str(line)
+    if len(line) > 84:
+        return f'{line[:84]} <<truncated>>'
+    else:
+        return line
+
+
+'''
+- user submitted func lines count:
+
 - only lines between (def "your_function_name") and (return 'answer') will be counted
   however, it will still count towards the score if "return" line
   is longer than 72 chars.
