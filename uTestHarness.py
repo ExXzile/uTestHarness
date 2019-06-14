@@ -59,10 +59,10 @@ class MainApp:
 
         # description box
         self.desc_box = Text(
-            master, font='Courier 9', height=24, width=99,
+            master, font='Courier 9', height=20, width=99,
             relief='raised', borderwidth=2, state='disabled'
         )
-        self.desc_box.grid(row=1, column=0, padx=12, sticky='ew')
+        self.desc_box.grid(row=1, column=0, padx=12, sticky='news')
 
         # submit box
         Label(
@@ -70,9 +70,11 @@ class MainApp:
         ).grid(row=2, padx=24, pady=12, sticky='w')
 
         self.sub_box = Text(
-            master, relief='sunken', height=12, width=99, font='Courier 9', borderwidth=2
+            master, relief='sunken', height=14, width=99, font='Courier 9', borderwidth=2
         )
-        self.sub_box.grid(row=3, padx=12)
+        with open('WARNING.txt', 'r') as warning:
+            self.sub_box.insert(END, warning.read())
+        self.sub_box.grid(row=3, padx=12, sticky='news')
 
         # paste from clipboard
         def paste():
@@ -147,7 +149,7 @@ class MainApp:
                             except AssertionError:
                                 # if a 'not a match' received
                                 # report mismatch, and check if it is not a 'type' mismatch
-                                if type(result) != type(expect) and result != '- NONE -':
+                                if type(result) != type(expect) and result != '- NONE -' and result:
                                     rep_box.insert(
                                         END,
                                         f'\nexpected: type <{type(expect).__name__}> - {rep_line_count(expect)}'
@@ -212,8 +214,9 @@ def main():
     root.title('uTestHarness')
     root.geometry('+480+100')
     root.iconbitmap('Icons\\TH.ico')
-    root.resizable(False, False)
-    root.lift()
+    root.resizable(False, True)
+    root.grid_rowconfigure(1, weight=1)
+    root.grid_rowconfigure(3, weight=3)
     _main_app = MainApp(root)
     root.mainloop()
 
