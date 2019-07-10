@@ -134,9 +134,7 @@ class MainApp:
 
                             # attempt to get func output, report errors
                             try:
-                                result = func(test) \
-                                    if type(test) == str or type(test) == int \
-                                    else func(*test)
+                                result = func(test) if type(test) != tuple else func(*test)
                             except Exception as func_error:
                                 result = '- NONE- '
                                 rep_box.insert(END, f'\n--------- !Func Error!: {func_error}')

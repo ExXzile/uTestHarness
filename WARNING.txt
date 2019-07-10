@@ -4,7 +4,7 @@ in order to test your function(s), any PYTHON code here WILL BE EXECUTED!
 only submit your own code or code you are confident in!
 submissions must be in a function format and multiple functions can be submitted at once:
 
-def <your_function_name>(<test_inputs(s)>)
+def <your_function_name>(<test_input(s)>)
 
    <your code>
 
