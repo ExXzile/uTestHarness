@@ -191,8 +191,10 @@ class MainApp:
 
                         # if any of the tests failed
                         else:
-                            rep_box.insert(END, f'\n---> Overall Test Failed!')
-
+                            if not any(results):
+                                rep_box.insert(END, f'\n---> All Tests Failed!')
+                            else:
+                                rep_box.insert(END, f'\n---> Overall Test Failed!')
                         # end func report
                         rep_box.insert(
                             END,
